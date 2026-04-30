@@ -1,0 +1,35 @@
+default_lane: local
+policy:
+  quality_priority_threshold: 5
+  cost_priority_threshold: 5
+  latency_priority_threshold: 5
+  quality_lane: premium
+  cost_lane: local
+  latency_lane: local
+lanes:
+  local:
+    model: gemma4:latest
+    use_case:
+      - drafting
+      - refactor
+      - summary
+  byok:
+    providers:
+      - anthropic
+      - openai
+      - google
+    retry_attempts: 2
+    timeout_seconds: 25
+    models:
+      anthropic: claude-3-5-haiku-latest
+      openai: gpt-4.1-mini
+      google: gemini-1.5-flash
+    use_case:
+      - multi_step_debug
+      - architecture
+      - complex_codegen
+  premium:
+    model_profile: high_capability
+    use_case:
+      - final_review
+      - hard_blocker_tasks
