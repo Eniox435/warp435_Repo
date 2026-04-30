@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install lint tool
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ruff
+
+      - name: Run linting
+        run: ruff check .
+
+      - name: Run compile checks
+        run: |
+          paths=()
+          [ -d src ] && paths+=("src")
+          [ -d tests ] && paths+=("tests")
+          if [ ${#paths[@]} -gt 0 ]; then
+            python -m compileall "${paths[@]}"
+          else
+            echo "No src/tests directories present; skipping compile checks."
+          fi
+
+      - name: Run test suite
+        run: |
+          if [ -d tests ]; then
+            python -m unittest discover -s tests
+          else
+            echo "No tests directory present; skipping tests."
+          fi
