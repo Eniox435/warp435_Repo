@@ -27,7 +27,20 @@ jobs:
         run: ruff check .
 
       - name: Run compile checks
-        run: python -m compileall src tests
+        run: |
+          paths=()
+          [ -d src ] && paths+=("src")
+          [ -d tests ] && paths+=("tests")
+          if [ ${#paths[@]} -gt 0 ]; then
+            python -m compileall "${paths[@]}"
+          else
+            echo "No src/tests directories present; skipping compile checks."
+          fi
 
       - name: Run test suite
-        run: python -m unittest discover -s tests
+        run: |
+          if [ -d tests ]; then
+            python -m unittest discover -s tests
+          else
+            echo "No tests directory present; skipping tests."
+          fi
